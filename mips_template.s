@@ -35,6 +35,8 @@ main:
 	la $a0,array
 	li $a1,0
 	li $a2,7
+	sll $a1, $a1, 2 	# multiplying the index by 4
+	sll $a2, $a2, 2 	# multiplying the index by 4
 	jal quickSort
 
 	# Print the sorted array
@@ -58,8 +60,6 @@ swap:
 	# Swap the elements at the given indices in the list
 
 	### INSERT YOUR CODE HERE
-	sll $a1, $a1, 2 	# multiplying the index by 4
-	sll $a2, $a2, 2 	# multiplying the index by 4
 	add $t0, $a0, $a1	# add index to base address
 	add $t1, $a0, $a2	# add index to base address
 	
@@ -83,8 +83,17 @@ medianOfThree:
 	# Make this the first element of the list by swapping
 
 	### INSERT YOUR CODE HERE
-	
-	
+	add $t4, $a0, $a1	# add index to base address (lo)
+	add $t5, $a0, $a2	# add index to base address (hi)
+	add $t6, $t4, $t5 	# t6 = lo + hi
+	div $t7, $t6, 2		# mid = (lo + hi) / 2
+	slt $t8, $t5, $t4	# if hi < lo, t8 = 1, if hi > lo then t8 = 0
+	bne $t8, $zero, swap	# if hi < lo, goes to swap
+	slt $t8, $t5, $t7		# if hi < mid, t8 = 1, if hi > mid then t8 = 0
+	bne $t8, $zero, swap	# if hi < lo, goes to swap
+	slt $t8, $t7, $t4		# if mid < lo, t8 = 1, if mid > lo then t8 = 0
+	bne $t8, $zero, swap	# if hi < lo, goes to swap
+	j swap	# swap lo, mid
 	
 	# return to caller
 	jr $ra

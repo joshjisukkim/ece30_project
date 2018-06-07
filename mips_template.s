@@ -102,20 +102,37 @@ medianOfThree:
 ########################
 #      partition       #
 ########################
-partition: 
+partition:
+ 
 	# a0: base address
+
 	# a1: left  = first index to be partitioned
+
 	# a2: right = last index to be partitioned
+
 	# a3: pivot value
+
 	# Return:
+
 	# v0: The final index for the pivot element
+
 	# Separate the list into two sections based on the pivot value
 
-	### INSERT YOUR CODE HERE
 
-	# return to caller
-	jr $ra
+	### INSERT YOUR CODE HERE
+	slt $t0, $a1 , $a2 	#checking if left value is less than right value
+	beq $t0, $zero, done 	#if left is greater than or equal to right, leave partition
+	add $t1, $a0, $a1	#get address of left index
+	lw $t2, 0($t1)		#loading left number to register
+	slt $t0, $a3, $t2	#checking if pivot is less than left number
+	beq $t0, $zero, else	#if pivot is greater jump to 
+
+else:
 	
+	# return to caller
+
+done:	jr $ra
+
 
 ########################
 #      quickSort       #

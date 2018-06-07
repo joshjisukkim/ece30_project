@@ -145,18 +145,23 @@ partition:
 
 
 	### INSERT YOUR CODE HERE
+	move $k0, $ra		#saving return address in case swap is called
 	slt $t0, $a1 , $a2 	#checking if left value is less than right value
-	beq $t0, $zero, done 	#if left is greater than or equal to right, leave partition
-	add $t1, $a0, $a1	#get address of left index
-	lw $t2, 0($t1)		#loading left number to register
-	slt $t0, $a3, $t2	#checking if pivot is less than left number
-	beq $t0, $zero, else	#if pivot is greater jump to 
-
-else:
+	beq $t0, $zero, donep 	#if left is greater than or equal to right, leave partition
+	add $t0, $a0, $a1	#add left index to base address
+	lw $t1, 0($t0)		#loading left most number to register
+	slt $t0, $a3, $t1	#checking if pivot is less than left number, if true t0 = 1, otherwise t0 = 0
+	beq $t0, $zero, else	#if pivot is greater jump to else
+	addi $a2, $a2, -4	#subtract 4 from right index to get right-1
+	j partition		#run partition on left to right-1 index
+	
+else:	addi $a1, $a1, 4	#add 4 to left index to get left+1
+	j partition		#run partition on left+1 to right index
 	
 	# return to caller
 
-done:	jr $ra
+donep:	move $v0, $a1		#return pivot index by setting v0 = left
+	jr $ra
 
 
 ########################

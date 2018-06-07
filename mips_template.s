@@ -35,6 +35,7 @@ main:
 	la $a0,array
 	li $a1,0
 	li $a2,7
+	li $a3, 6
 	sll $a1, $a1, 2 	# multiplying the index by 4
 	sll $a2, $a2, 2 	# multiplying the index by 4
 	jal quickSort
@@ -86,8 +87,9 @@ medianOfThree:
 	move $k1, $ra		# save return address
 	add $t0, $a0, $a1	# add index to base address (lo)
 	add $t1, $a0, $a2	# add index to base address (hi)
-	add $t2, $a1, $a2 	# t6 = lo + hi
-	div $t7, $t2, 2		# mid = (lo + hi) / 2
+	add $t2, $a1, $a2 	# t2 = lo + hi
+	div $t7, $t2, 8		# mid = (lo + hi) / 2
+	sll $t7, $t7, 2 	# multiplying the index by 4
 	add $t3, $a0, $t7	# add index to base address (mid)
 
 	lw $t4, 0($t0)		# loading lo into register for comparison
@@ -96,7 +98,7 @@ medianOfThree:
 	beq $t6, $zero, skip0	# if hi < lo, goes to swap, otherwise skip
 	jal swap
 
-skip0:	move $t8, $a1		# temp store lo index
+skip0:	move $t8, $a1	# temp store lo index
 	move $a1, $t7		# set a1 to mid index in case of swap
 	move $t7, $t8		# save lo index into t7 for later
 	lw $t4, 0($t3)		# loading mid into register for comparison
@@ -105,7 +107,7 @@ skip0:	move $t8, $a1		# temp store lo index
 	beq $t6, $zero, skip1	# if hi < mid, goes to swap, otherwise skip
 	jal swap
 	
-skip1:	move $t8, $a2		# temp store hi index
+skip1:	move $t8, $a2	# temp store hi index
 	move $a2, $t7		# set a2 to low index in case of swap
 	move $t7, $t8		# save hi index into t7 for later
 	lw $t4, 0($t0)		# loading low into register for comparison
@@ -130,37 +132,37 @@ skip2:	jal swap		# swap lo, mid
 partition:
  
 	# a0: base address
-
 	# a1: left  = first index to be partitioned
-
 	# a2: right = last index to be partitioned
-
 	# a3: pivot value
-
 	# Return:
-
 	# v0: The final index for the pivot element
-
 	# Separate the list into two sections based on the pivot value
 
 
 	### INSERT YOUR CODE HERE
-	move $k0, $ra		#saving return address in case swap is called
-	slt $t0, $a1 , $a2 	#checking if left value is less than right value
-	beq $t0, $zero, donep 	#if left is greater than or equal to right, leave partition
-	add $t0, $a0, $a1	#add left index to base address
-	lw $t1, 0($t0)		#loading left most number to register
-	slt $t0, $a3, $t1	#checking if pivot is less than left number, if true t0 = 1, otherwise t0 = 0
-	beq $t0, $zero, else	#if pivot is greater jump to else
-	addi $a2, $a2, -4	#subtract 4 from right index to get right-1
-	j partition		#run partition on left to right-1 index
+	move $k0, $ra			# saving return address in case swap is called
 	
-else:	addi $a1, $a1, 4	#add 4 to left index to get left+1
-	j partition		#run partition on left+1 to right index
+partition1:
+	slt $t0, $a1, $a2 		# checking if left value is less than right value
+	beq $t0, $zero, donep 	# if left is greater than or equal to right, leave partition
+	beq $a1, $a2, donep 	# if left is greater than or equal to right, leave partition
+	add $t0, $a0, $a1		# add left index to base address
+	lw $t1, 0($t0)			# loading left most number to register
+	slt $t0, $a3, $t1		# checking if pivot is less than left number, if true t0 = 1, otherwise t0 = 0
+	beq $t0, $zero, else	# if pivot is greater jump to else
+	addi $a2, $a2, -4		# subtract 4 from right index to get right-1
+	jal swap				# swap
+	j partition1			# run partition on left to right-1 index
+	
+else:	
+	addi $a1, $a1, 4		# add 4 to left index to get left+1
+	j partition1			# run partition on left+1 to right index
 	
 	# return to caller
 
-donep:	move $v0, $a1		#return pivot index by setting v0 = left
+donep:	move $v0, $a1		# return pivot index by setting v0 = left
+	move $ra, $k0
 	jr $ra
 
 

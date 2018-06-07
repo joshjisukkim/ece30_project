@@ -83,19 +83,44 @@ medianOfThree:
 	# Make this the first element of the list by swapping
 
 	### INSERT YOUR CODE HERE
-	add $t4, $a0, $a1	# add index to base address (lo)
-	add $t5, $a0, $a2	# add index to base address (hi)
-	add $t6, $t4, $t5 	# t6 = lo + hi
-	div $t7, $t6, 2		# mid = (lo + hi) / 2
-	slt $t8, $t5, $t4	# if hi < lo, t8 = 1, if hi > lo then t8 = 0
-	bne $t8, $zero, swap	# if hi < lo, goes to swap
-	slt $t8, $t5, $t7		# if hi < mid, t8 = 1, if hi > mid then t8 = 0
-	bne $t8, $zero, swap	# if hi < lo, goes to swap
-	slt $t8, $t7, $t4		# if mid < lo, t8 = 1, if mid > lo then t8 = 0
-	bne $t8, $zero, swap	# if hi < lo, goes to swap
-	j swap	# swap lo, mid
+	move $k1, $ra		# save return address
+	add $t0, $a0, $a1	# add index to base address (lo)
+	add $t1, $a0, $a2	# add index to base address (hi)
+	add $t2, $a1, $a2 	# t6 = lo + hi
+	div $t7, $t2, 2		# mid = (lo + hi) / 2
+	add $t3, $a0, $t7	# add index to base address (mid)
+
+	lw $t4, 0($t0)		# loading lo into register for comparison
+	lw $t5, 0($t1)		# loading hi into register for comparison
+	slt $t6, $t5, $t4	# if hi < lo, t6 = 1, if hi > lo then t6 = 0
+	beq $t6, $zero, skip0	# if hi < lo, goes to swap, otherwise skip
+	jal swap
+
+skip0:	move $t8, $a1		# temp store lo index
+	move $a1, $t7		# set a1 to mid index in case of swap
+	move $t7, $t8		# save lo index into t7 for later
+	lw $t4, 0($t3)		# loading mid into register for comparison
+	lw $t5, 0($t1)		# loading hi into register for comparison
+	slt $t6, $t5, $t4	# if hi < mid, t6 = 1, if hi > mid then t6 = 0
+	beq $t6, $zero, skip1	# if hi < mid, goes to swap, otherwise skip
+	jal swap
 	
+skip1:	move $t8, $a2		# temp store hi index
+	move $a2, $t7		# set a2 to low index in case of swap
+	move $t7, $t8		# save hi index into t7 for later
+	lw $t4, 0($t0)		# loading low into register for comparison
+	lw $t5, 0($t3)		# loading mid into register for comparison
+	slt $t6, $t5, $t4	# if mid < lo, t6 = 1, if mid > lo then t6 = 0
+	beq $t6, $zero, skip2	# if mid < lo, goes to swap, otherwise skip
+	jal swap
+
+skip2:	jal swap		# swap lo, mid
+	
+	move $t8, $a2		# temp store hi index
+	move $a2, $t7		# set a2 to low index in case of swap
+	move $t7, $t8		# save hi index into t7 for later
 	# return to caller
+	move $ra, $k1		# set ra back to the linked register
 	jr $ra
 
 
